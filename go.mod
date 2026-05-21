@@ -8,7 +8,7 @@ require (
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.4.0
 	github.com/onsi/gomega v1.41.0
 	github.com/openshift/hive/apis v0.0.0-20260519181045-ab4b2490385a
-	github.com/openshift/hypershift/api v0.0.0-20260519175807-9e283aee4b29
+	github.com/openshift/hypershift/api v0.0.0-20260521020616-1d348802575b
 	github.com/sirupsen/logrus v1.9.4
 	github.com/vmware-tanzu/velero v1.18.1
 	k8s.io/api v0.35.4
@@ -37,7 +37,7 @@ require (
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/openshift/api v0.0.0-20260519120831-dcaca8e0fec1 // indirect
+	github.com/openshift/api v0.0.0-20260520123312-30525d574efa // indirect
 	github.com/openshift/installer v1.4.22-ec5 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
