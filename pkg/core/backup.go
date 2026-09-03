@@ -38,6 +38,7 @@ type BackupPlugin struct {
 	hoNamespace       string
 	etcdBackupMethod  string
 	etcdSnapshotURL   string // populated after HCPEtcdBackup completes
+	hasDPA            bool   // true when OADP+DPA is detected, false for standalone Velero
 }
 
 // NewBackupPlugin instantiates BackupPlugin.
@@ -78,6 +79,16 @@ func NewBackupPlugin(logger logrus.FieldLogger) (*BackupPlugin, error) {
 		Client: client,
 	}
 
+	hasDPA, dpaErr := common.CRDExists(ctx, common.DPACRDName, client)
+	if dpaErr != nil {
+		logger.Warnf("Could not check for DPA CRD: %v", dpaErr)
+	}
+	if hasDPA {
+		logger.Info("OADP+DPA detected, using BSL credential references")
+	} else {
+		logger.Info("Standalone Velero detected, will use fallback credentials when BSL has no credential reference")
+	}
+
 	hoNamespace := common.DefaultHONamespace
 	if v, ok := pluginConfig.Data[common.ConfigKeyHONamespace]; ok && v != "" {
 		hoNamespace = v
@@ -99,6 +110,7 @@ func NewBackupPlugin(logger logrus.FieldLogger) (*BackupPlugin, error) {
 		validator:        validator,
 		hoNamespace:      hoNamespace,
 		etcdBackupMethod: etcdBackupMethod,
+		hasDPA:           hasDPA,
 	}
 
 	if bp.BackupOptions, err = bp.validator.ValidatePluginConfig(bp.config); err != nil {
@@ -126,7 +138,7 @@ func (p *BackupPlugin) Execute(item runtime.Unstructured, backup *velerov1.Backu
 	p.log.Debug("Entering Hypershift backup plugin")
 	ctx := context.Context(p.ctx)
 
-	if returnEarly, err := common.ShouldEndPluginExecution(ctx, backup, p.client, p.log); returnEarly {
+	if returnEarly, err := common.ShouldEndPluginExecution(backup); returnEarly {
 		p.log.Infof("Skipping hypershift plugin execution - not a hypershift backup: %v", err)
 		return item, nil, nil
 	}
